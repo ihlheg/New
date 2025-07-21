@@ -2,7 +2,7 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local MainWindow = Rayfield:CreateWindow({
    Name = "[NOLI🎭]ForSaken Script🔥",
-   Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
+   Icon = nil, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
    LoadingTitle = "QuanDz Hub",
    LoadingSubtitle = "By QuanDz",
    ShowText = "Rayfield", -- for mobile users to unhide rayfield, change if you'd like
@@ -36,6 +36,6 @@ local MainWindow = Rayfield:CreateWindow({
       Key = {"SkibidiSaken"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
    }
 })
-
-local Tab1 = Window:CreateTab("🏡Home", nil) -- Title, Image
-local Section1 = Tab:CreateSection("Main")
+local MainTab = Window:CreateTab("🏡Home", nil) -- Title, Image
+local MainSection = Tab:CreateSection("Main")
+})
