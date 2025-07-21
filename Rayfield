@@ -37,4 +37,10 @@ local MainWindow = Rayfield:CreateWindow({
    }
 })
 local MainTab = Window:CreateTab("Home", nil) -- Title, Image
+local Button = MainTab:CreateButton({
+   Name = "Fly",
+   Callback = function()
+   -- The function that takes place when the button is pressed
+   end,
+})
 })
