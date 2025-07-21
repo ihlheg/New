@@ -25,7 +25,7 @@ local MainWindow = Rayfield:CreateWindow({
       RememberJoins = true -- Set this to false to make them join the discord every time they load it up
    },
 
-   KeySystem = false, -- Set this to true to use our key system
+   KeySystem = true, -- Set this to true to use our key system
    KeySettings = {
       Title = "Key",
       Subtitle = "Key System",
@@ -37,13 +37,30 @@ local MainWindow = Rayfield:CreateWindow({
    }
 })
 
-local MainTab = Window:CreateTab("Main", 4483362458) -- Title, Image
-
-local Button = Tab:CreateButton({
-   Name = "print 'hello'",
-   Callback = function(v)
-v = print ("hello")
-   -- The function that takes place when the button is pressed
+local MainTab = Window:CreateTab("Home", nil) -- Title, Image
+local MainSection = MainTab:CreateSection("Main")
+})
+local Toggle = MainTab:CreateToggle({
+   Name = "Chams",
+   CurrentValue = false,
+   Flag = "toggleexample", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+   -- The function that takes place when the toggle is pressed
+   -- The variable (Value) is a boolean on whether the toggle is true or false
    end,
 })
-
+local Toggle = MainTab:CreateToggle({
+   Name = "Cham2",
+   CurrentValue = false,
+   Flag = "toggleexample2", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+   -- The function that takes place when the toggle is pressed
+   -- The variable (Value) is a boolean on whether the toggle is true or false
+   end,
+})
+local Button = MainTab:CreateButton({
+   Name = "Button Example",
+   Callback = function()
+   
+   end,
+})
