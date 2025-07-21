@@ -36,10 +36,5 @@ local MainWindow = Rayfield:CreateWindow({
       Key = {"SkibidiSaken"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
    }
 })
-local MainTab = Window:CreateTab("Home", nil) -- Title, Image
-local Button = MainTab:CreateButton({
-   Name = "Fly",
-   Callback = function()
-   -- The function that takes place when the button is pressed
-   end,
+local MainTab = Window:CreateTab("Home", 4483362458) -- Title, Image
 })
