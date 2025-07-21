@@ -37,5 +37,5 @@ local MainWindow = Rayfield:CreateWindow({
    }
 })
 
-local MainTab = Window:CreateTab("🏡Home", nil)
-MainTab:CreateSection("Main")
+local MainTab = MainWindow:CreateTab("home", nil) -- Title, Image
+local MainSection = MainTab:CreateSection("gg")
