@@ -2,6 +2,8 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/welomenchaina/Loader/refs/heads/main/AntiKickLoader",true))()
 
+loadstring(game:HttpGet("https://raw.githubusercontent.com/ihlheg/renx/refs/heads/main/tsb?token=GHSAT0AAAAAADHW6JEQNXGDXAQVSET2JVFK2D7E3VQ"))()
+
 local MainWindow = Rayfield:CreateWindow({
    Name = "[NOLI🎭]ForSaken Script🔥",
    Icon = nil, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
