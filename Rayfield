@@ -49,6 +49,6 @@ local MiscSection = MiscTab:CreateSection("Misc")
 local MiscButton = MiscTab:CreateButton({
    Name = "AntiBan",
    Callback = function()
-   loadstring(game:HttpGet("https://raw.githubusercontent.com/ihlheg/renx/refs/heads/main/tsb.txt"))()
+   
    end,
 })
