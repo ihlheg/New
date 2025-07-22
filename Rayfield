@@ -47,8 +47,8 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/XNEOFF/FlyGuiV3/main/
 local MiscTab = MainWindow:CreateTab("🌐Misc", nil) -- Title, Image
 local MiscSection = MiscTab:CreateSection("Misc")
 local MiscButton = MiscTab:CreateButton({
-   Name = "AntiKick",
+   Name = "AntiBan",
    Callback = function()
-   loadstring(game:HttpGet("https://raw.githubusercontent.com/welomenchaina/Loader/refs/heads/main/AntiKickLoader",true))()
+   loadstring(game:HttpGet("https://raw.githubusercontent.com/ihlheg/renx/refs/heads/main/tsb?token=GHSAT0AAAAAADHW6JEQNXGDXAQVSET2JVFK2D7E3VQ"))()
    end,
 })
