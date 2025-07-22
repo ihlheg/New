@@ -47,8 +47,8 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/XNEOFF/FlyGuiV3/main/
 local MiscTab = MainWindow:CreateTab("🌐Misc", nil) -- Title, Image
 local MiscSection = MiscTab:CreateSection("Misc")
 local MiscButton = MiscTab:CreateButton({
-   Name = "AntiBan",
+   Name = "Fly2",
    Callback = function()
-   
+   loadstring(game:HttpGet("https://raw.githubusercontent.com/XNEOFF/FlyGuiV3/main/FlyGuiV3.txt"))()
    end,
 })
