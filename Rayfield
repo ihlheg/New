@@ -1,12 +1,83 @@
+local ESPEnabled = false
+
+-- 🎯 Hàm tạo hiệu ứng Highlight
+local function createOutlineESP(model, outlineColor, fillColor)
+    local highlight = Instance.new("Highlight")
+    highlight.Adornee = model
+    highlight.FillTransparency = 0.75
+    highlight.FillColor = fillColor
+    highlight.OutlineColor = outlineColor
+    highlight.OutlineTransparency = 0 
+    highlight.Parent = model
+end
+
+-- 💡 ESP cho nhóm người
+local function createOutlineESPForGroup(group, outlineColor, fillColor)
+    for _, obj in pairs(group:GetChildren()) do
+        local humanoid = obj:FindFirstChildOfClass("Humanoid")
+        if humanoid and obj:FindFirstChild("HumanoidRootPart") then
+            createOutlineESP(obj, outlineColor, fillColor)
+        end
+    end
+end
+
+-- ⚡ ESP cho generator
+local function highlightGenerators()
+    local mapFolder = workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Ingame") and workspace.Map.Ingame:FindFirstChild("Map")
+    if mapFolder then
+        for _, obj in pairs(mapFolder:GetChildren()) do
+            if obj:IsA("Model") and obj.Name == "Generator" then
+                createOutlineESP(obj, Color3.new(1, 1, 0), Color3.new(1, 1, 0.5))
+            end
+        end
+    end
+end
+
+-- 🔄 Vòng lặp ESP
+function updateESP()
+    while ESPEnabled do
+        -- 1. Xoá highlight cũ
+        for _, obj in pairs(workspace.Players:GetChildren()) do
+            if obj:IsA("Model") and obj:FindFirstChild("Humanoid") then
+                for _, child in pairs(obj:GetChildren()) do
+                    if child:IsA("Highlight") then
+                        child:Destroy()
+                    end
+                end
+            end
+        end
+
+        -- 2. ESP cho Killers
+        local killersGroup = workspace.Players:FindFirstChild("Killers")
+        if killersGroup then
+            createOutlineESPForGroup(killersGroup, Color3.new(1, 0, 0), Color3.new(1, 0.5, 0.5))
+        else
+        end
+        
+        -- 3. ESP cho Survivors
+        local survivorsGroup = workspace.Players:FindFirstChild("Survivors")
+        if survivorsGroup then
+            createOutlineESPForGroup(survivorsGroup, Color3.new(0, 1, 0), Color3.new(0.5, 1, 0.5))
+        else
+        end
+
+        -- 4. ESP cho Generators
+        highlightGenerators()
+
+        -- 5. Chờ 5 giây rồi chạy lại
+        task.wait(5)
+    end
+end
+
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local MainWindow = Rayfield:CreateWindow({
    Name = "[NOLI🎭]ForSaken Script🔥",
    Icon = nil, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
    LoadingTitle = "QuanDz Hub",
-   LoadingSubtitle = "By QuanDz",
+   LoadingSubtitle = "Script Work In Delta And More",
    ShowText = "Rayfield", -- for mobile users to unhide rayfield, change if you'd like
-   Theme = "Default", -- Check https://docs.sirius.menu/rayfield/configuration/themes
+   Theme = "AmberGlow", -- Check https://docs.sirius.menu/rayfield/configuration/themes
 
    ToggleUIKeybind = "K", -- The keybind to toggle the UI visibility (string like "K" or Enum.KeyCode)
 
@@ -25,7 +96,7 @@ local MainWindow = Rayfield:CreateWindow({
       RememberJoins = true -- Set this to false to make them join the discord every time they load it up
    },
 
-   KeySystem = false, -- Set this to true to use our key system
+   KeySystem = true, -- Set this to true to use our key system
    KeySettings = {
       Title = "Get Key🔑",
       Subtitle = "Key System",
@@ -38,30 +109,101 @@ local MainWindow = Rayfield:CreateWindow({
 }) --Main Tab
 local MainTab = MainWindow:CreateTab("🏡Home", nil) -- Title, Image
 local MainSection = MainTab:CreateSection("Main")
-local MainButton = MainTab:CreateButton({
-   Name = "Fly",
-   Callback = function()
-loadstring(game:HttpGet("https://raw.githubusercontent.com/XNEOFF/FlyGuiV3/main/FlyGuiV3.txt"))()
+local Running = false
+local StaminaLoop
+
+MainToggle = MainTab:CreateToggle({
+   Name = "INF Stamina",
+   CurrentValue = false,
+   Flag = "Toggle1",
+   Callback = function(Value)
+      Running = Value
+      local StaminaModule = require(game.ReplicatedStorage.Systems.Character.Game.Sprinting)
+      StaminaModule.StaminaLossDisabled = Value
+
+      if Value then
+         StaminaLoop = task.spawn(function()
+            while Running do
+               task.wait(0.1)
+               StaminaModule.Stamina = StaminaModule.MaxStamina
+               StaminaModule.StaminaChanged:Fire()
+            end
+         end)
+      end
    end,
 }) --Misc Tab
 local MiscTab = MainWindow:CreateTab("🌐Misc", nil) -- Title, Image
 local MiscSection = MiscTab:CreateSection("Misc")
 local MiscButton = MiscTab:CreateButton({
-   Name = "NoFog",
-   Callback = function()
-   game.Lighting.FogEnd = 100000
-game.Lighting.FogStart = 0
-game.Lighting.ClockTime = 14
-game.Lighting.Brightness = 2
-game.Lighting.GlobalShadows = false
-   end,
+    Name = "NoFog And Fix Lag",
+    Callback = function()
+        -- ☁️ Xóa các Sky đang tồn tại
+        for _, v in pairs(game.Lighting:GetChildren()) do
+            if v:IsA("Sky") then
+                v:Destroy()
+            end
+        end
+
+        -- 🌄 Gắn lại Sky mặc định Roblox
+        local defaultSky = Instance.new("Sky")
+        defaultSky.SkyboxBk = "rbxassetid://401664839"
+        defaultSky.SkyboxDn = "rbxassetid://401664889"
+        defaultSky.SkyboxFt = "rbxassetid://401664831"
+        defaultSky.SkyboxLf = "rbxassetid://401664808"
+        defaultSky.SkyboxRt = "rbxassetid://401664845"
+        defaultSky.SkyboxUp = "rbxassetid://401664874"
+        defaultSky.Parent = game.Lighting
+
+        -- 🔁 Tự động xóa bất kỳ Sky mới nào
+        game.Lighting.ChildAdded:Connect(function(child)
+            if child:IsA("Sky") then
+                task.wait(0.1)
+                child:Destroy()
+            end
+        end)
+
+        -- 🌫 Xóa sương mù và điều chỉnh ánh sáng
+        game.Lighting.FogEnd = 100000
+        game.Lighting.FogStart = 0
+        game.Lighting.ClockTime = 14
+        game.Lighting.Brightness = 2
+        game.Lighting.GlobalShadows = false
+
+        -- 🚀 Giảm lag nhẹ
+        local function reduceLag()
+            for _, v in pairs(workspace:GetDescendants()) do
+                if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Explosion") or v:IsA("Fire") or v:IsA("Smoke") or v:IsA("Sparkles") then
+                    v.Enabled = false
+                elseif v:IsA("Decal") or v:IsA("Texture") then
+                    v.Transparency = 0.5
+                elseif v:IsA("MeshPart") then
+                    v.Material = Enum.Material.Plastic
+                    v.Reflectance = 0
+                end
+            end
+        end
+        reduceLag()
+    end,
 })
 local MiscToggle = MiscTab:CreateToggle({
-   Name = "Esp",
-   CurrentValue = false,
-   Flag = "Toggle1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-   Callback = function(Value)
-   loadstring(game:HttpGet("https://raw.githubusercontent.com/ihlheg/esp/refs/heads/main/esp"))()
-   -- The variable (Value) is a boolean on whether the toggle is true or false
-   end,
+    Name = "Esp (Survivor Killer Generator)",
+    CurrentValue = false,
+    Flag = "Toggle2",
+    Callback = function(Value)
+        ESPEnabled = Value
+        if Value then
+            task.spawn(updateESP)
+        else
+            -- Xoá highlight khi tắt ESP
+            for _, obj in pairs(workspace.Players:GetChildren()) do
+                if obj:IsA("Model") and obj:FindFirstChild("Humanoid") then
+                    for _, child in pairs(obj:GetChildren()) do
+                        if child:IsA("Highlight") then
+                            child:Destroy()
+                        end
+                    end
+                end
+            end
+        end
+    end
 })
