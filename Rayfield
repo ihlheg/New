@@ -1,130 +1,100 @@
-local ESPEnabled = false
-local Running = false
--- 🔷 Tạo ESP Highlight
-local function createOutlineESP(model, outlineColor, fillColor)
+local ESPEnabled, Running = false, false
+
+-- ESP Core
+local function highlight(model, oc, fc)
     local h = Instance.new("Highlight")
     h.Adornee = model
-    h.FillTransparency = 0.75
-    h.FillColor = fillColor
-    h.OutlineColor = outlineColor
-    h.OutlineTransparency = 0
+    h.FillTransparency, h.FillColor, h.OutlineColor = 0.75, fc, oc
     h.Parent = model
 end
--- 🔷 ESP cho nhóm
-local function createOutlineESPForGroup(group, outlineColor, fillColor)
+
+local function groupESP(group, oc, fc)
     for _, obj in pairs(group:GetChildren()) do
         if obj:FindFirstChildOfClass("Humanoid") and obj:FindFirstChild("HumanoidRootPart") then
-            createOutlineESP(obj, outlineColor, fillColor)
+            highlight(obj, oc, fc)
         end
     end
 end
--- 🔷 ESP cho Generator
-local function highlightGenerators()
-    local f = workspace:FindFirstChild("Map")
-    f = f and f:FindFirstChild("Ingame")
-    f = f and f:FindFirstChild("Map")
+
+local function generatorESP()
+    local f = workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Ingame") and workspace.Map.Ingame:FindFirstChild("Map")
     if f then
         for _, obj in pairs(f:GetChildren()) do
             if obj:IsA("Model") and obj.Name == "Generator" then
-                createOutlineESP(obj, Color3.new(1, 1, 0), Color3.new(1, 1, 0.5))
+                highlight(obj, Color3.new(1,1,0), Color3.new(1,1,0.5))
             end
         end
     end
 end
--- 🔄 Vòng lặp ESP
+
 local function updateESP()
     while ESPEnabled do
-        for _, obj in pairs(workspace:GetChildren()) do
-            if obj:IsA("Model") then
-                for _, c in pairs(obj:GetChildren()) do
-                    if c:IsA("Highlight") then c:Destroy() end
-                end
-            end
+        for _, m in pairs(workspace:GetChildren()) do
+            if m:IsA("Model") then for _, c in pairs(m:GetChildren()) do if c:IsA("Highlight") then c:Destroy() end end end
         end
-
-        local killers = workspace.Players:FindFirstChild("Killers")
-        if killers then createOutlineESPForGroup(killers, Color3.new(1, 0, 0), Color3.new(1, 0.5, 0.5)) end
-
-        local survivors = workspace.Players:FindFirstChild("Survivors")
-        if survivors then createOutlineESPForGroup(survivors, Color3.new(0, 1, 0), Color3.new(0.5, 1, 0.5)) end
-
-        highlightGenerators()
+        local p = workspace.Players
+        if p:FindFirstChild("Killers") then groupESP(p.Killers, Color3.new(1,0,0), Color3.new(1,0.5,0.5)) end
+        if p:FindFirstChild("Survivors") then groupESP(p.Survivors, Color3.new(0,1,0), Color3.new(0.5,1,0.5)) end
+        generatorESP()
         task.wait(5)
     end
 end
--- 🔧 Rayfield UI
+-- UI Setup
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 local win = Rayfield:CreateWindow({
-    Name = "[NOLI🎭]ForSaken Script🔥",
-    Theme = "AmberGlow",
-    ToggleUIKeybind = "K",
+    Name = "[NOLI🎭]Forsaken🔥",
+    Theme = "AmberGlow", ToggleUIKeybind = "K",
     ConfigurationSaving = {Enabled = true, FileName = "Skibidisaken"},
-    KeySystem = true,
-    KeySettings = {Title = "Get Key🔑", Key = {"Chubby"}, SaveKey = true, FileName = "Key"}
+    KeySystem = true, KeySettings = {Title = "Get Key🔑", Key = {"Chubby"}, SaveKey = true, FileName = "Key"}
 })
--- 🏡 Tab chính (Home)
 local home = win:CreateTab("🏡 Home")
 home:CreateToggle({
-    Name = "INF Stamina",
-    CurrentValue = false,
-    Flag = "Toggle1",
-    Callback = function(Value)
-        Running = Value
+    Name = "INF Stamina", Flag = "Toggle1", CurrentValue = false,
+    Callback = function(v)
+        Running = v
         local m = require(game.ReplicatedStorage.Systems.Character.Game.Sprinting)
-        m.StaminaLossDisabled = Value
-        if Value then
-            task.spawn(function()
-                while Running do
-                    task.wait(0.1)
-                    m.Stamina = m.MaxStamina
-                    m.StaminaChanged:Fire()
-                end
-            end)
+        m.StaminaLossDisabled = v
+        if v then task.spawn(function()
+            while Running do task.wait(0.1)
+                m.Stamina = m.MaxStamina
+                m.StaminaChanged:Fire()
+            end end)
         end
     end,
 })
 home:CreateToggle({
-    Name = "ESP (Survivor Killer Generator)",
-    CurrentValue = false,
-    Flag = "Toggle2",
-    Callback = function(Value)
-        ESPEnabled = Value
-        if Value then
-            task.spawn(updateESP)
-        else
-            for _, obj in pairs(workspace:GetDescendants()) do
-                if obj:IsA("Highlight") then obj:Destroy() end
+    Name = "ESP", Flag = "Toggle2", CurrentValue = false,
+    Callback = function(v)
+        ESPEnabled = v
+        if v then task.spawn(updateESP) else
+            for _, o in pairs(workspace:GetDescendants()) do
+                if o:IsA("Highlight") then o:Destroy() end
             end
         end
     end,
 })
--- 🌐 Tab phụ (Misc)
+home:CreateToggle({
+    Name = "AimBot[Beta](I Dont Make This)", Flag = "Toggle3", CurrentValue = false,
+    Callback = function(v)
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/MerebennieOfficial/ExoticJn/refs/heads/main/AIMLOCK"))()
+    end
+})
 local misc = win:CreateTab("🌐 Misc")
 misc:CreateButton({
-    Name = "NoFog",
-    Callback = function()
-        for _, v in pairs(game.Lighting:GetChildren()) do
-            if v:IsA("Sky") then v:Destroy() end
-        end
-
-        local s = Instance.new("Sky")
-        s.SkyboxBk = "rbxassetid://401664839"
-        s.SkyboxDn = "rbxassetid://401664889"
-        s.SkyboxFt = "rbxassetid://401664831"
-        s.SkyboxLf = "rbxassetid://401664808"
-        s.SkyboxRt = "rbxassetid://401664845"
-        s.SkyboxUp = "rbxassetid://401664874"
-        s.Parent = game.Lighting
-
-        game.Lighting.ChildAdded:Connect(function(child)
-            if child:IsA("Sky") then task.wait(0.1) child:Destroy() end
-        end)
-
-        game.Lighting.FogEnd = 100000
-        game.Lighting.FogStart = 0
-        game.Lighting.ClockTime = 14
-        game.Lighting.Brightness = 2
-        game.Lighting.GlobalShadows = false
+    Name = "NoFog", Callback = function()
+        for _, s in pairs(game.Lighting:GetChildren()) do if s:IsA("Sky") then s:Destroy() end end
+        local sky = Instance.new("Sky")
+        sky.SkyboxBk = "rbxassetid://401664839"
+        sky.SkyboxDn = "rbxassetid://401664889"
+        sky.SkyboxFt = "rbxassetid://401664831"
+        sky.SkyboxLf = "rbxassetid://401664808"
+        sky.SkyboxRt = "rbxassetid://401664845"
+        sky.SkyboxUp = "rbxassetid://401664874"
+        sky.Parent = game.Lighting
+        game.Lighting.ChildAdded:Connect(function(c) if c:IsA("Sky") then task.wait(0.1) c:Destroy() end end)
+        local l = game.Lighting
+        l.FogEnd, l.FogStart, l.ClockTime = 100000, 0, 14
+        l.Brightness, l.GlobalShadows = 2, false
     end,
 })
 misc:CreateButton({
@@ -136,8 +106,7 @@ misc:CreateButton({
             elseif v:IsA("Decal") or v:IsA("Texture") then
                 v.Transparency = math.clamp(v.Transparency + 0.5, 0, 1)
             elseif v:IsA("MeshPart") or v:IsA("Part") then
-                v.Material = Enum.Material.Plastic
-                v.Reflectance = 0
+                v.Material, v.Reflectance = Enum.Material.Plastic, 0
             end
         end
     end,
@@ -145,37 +114,30 @@ misc:CreateButton({
 misc:CreateButton({
     Name = "FixLag(Extreme)",
     Callback = function()
-        -- 🚫 Tắt toàn bộ hiệu ứng thị giác
         for _, v in pairs(workspace:GetDescendants()) do
-            if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Smoke") or v:IsA("Sparkles")
-            or v:IsA("Explosion") or v:IsA("Fire") or v:IsA("Beam") or v:IsA("Light") then
-                v.Enabled = false
-            elseif v:IsA("Decal") or v:IsA("Texture") then
-                v.Transparency = 1 -- ẩn hoàn toàn
-            elseif v:IsA("MeshPart") or v:IsA("Part") then
-                v.Material = Enum.Material.SmoothPlastic
-                v.Reflectance = 0
-                v.CastShadow = false
+            if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Smoke") or v:IsA("Sparkles") or v:IsA("Explosion") or v:IsA("Fire")
+            or v:IsA("Beam") or v:IsA("Light") or v:IsA("PostEffect") then v.Enabled = false
+            elseif v:IsA("Decal") or v:IsA("Texture") or v:IsA("SurfaceAppearance") then v:Destroy()
+            elseif v:IsA("MeshPart") or v:IsA("Part") or v:IsA("UnionOperation") then
+                v.Material, v.Reflectance, v.CastShadow = Enum.Material.SmoothPlastic, 0, false
             end
         end
-        -- 🌌 Làm sạch Lighting môi trường
-        local lighting = game.Lighting
-        lighting.FogEnd = 100000
-        lighting.FogStart = 0
-        lighting.ClockTime = 12
-        lighting.Brightness = 1
-        lighting.GlobalShadows = false
-        lighting.Ambient = Color3.new(1, 1, 1)
-        lighting.OutdoorAmbient = Color3.new(1, 1, 1)
-        -- ☁️ Xóa toàn bộ Sky và hiệu ứng phụ
-        for _, v in pairs(lighting:GetChildren()) do
-            if v:IsA("Sky") or v:IsA("BloomEffect") or v:IsA("ColorCorrectionEffect") or v:IsA("DepthOfFieldEffect") then
-                v:Destroy()
-            end
+
+        for _, v in pairs(workspace:GetDescendants()) do
+            local name = v.Name:lower()
+            if name:find("grass") or name:find("tree") or name:find("bush") then v:Destroy() end
         end
-        -- 💨 Xóa các hiệu ứng trên Camera
-        local camera = workspace.CurrentCamera
-        for _, v in pairs(camera:GetChildren()) do
+
+        local l = game.Lighting
+        l.FogEnd, l.FogStart, l.ClockTime = 100000, 0, 12
+        l.Brightness, l.GlobalShadows = 1, false
+        l.Ambient, l.OutdoorAmbient = Color3.new(1,1,1), Color3.new(1,1,1)
+        for _, e in pairs(l:GetChildren()) do
+            if e:IsA("Sky") or e:IsA("BloomEffect") or e:IsA("ColorCorrectionEffect")
+            or e:IsA("DepthOfFieldEffect") or e:IsA("SunRaysEffect") then e:Destroy() end
+        end
+
+        for _, v in pairs(workspace.CurrentCamera:GetChildren()) do
             if v:IsA("PostEffect") then v:Destroy() end
         end
     end,
