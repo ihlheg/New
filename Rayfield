@@ -50,7 +50,7 @@ local win = Rayfield:CreateWindow({
 local home = win:CreateTab("🏡 Home")
 home:CreateToggle({
     Name = "INF Stamina", Flag = "Toggle1", CurrentValue = false,
-    Callback = function(v)
+    Callback = function()
         Running = v
         local m = require(game.ReplicatedStorage.Systems.Character.Game.Sprinting)
         m.StaminaLossDisabled = v
@@ -64,7 +64,7 @@ home:CreateToggle({
 })
 home:CreateToggle({
     Name = "ESP", Flag = "Toggle2", CurrentValue = false,
-    Callback = function(v)
+    Callback = function()
         ESPEnabled = v
         if v then task.spawn(updateESP) else
             for _, o in pairs(workspace:GetDescendants()) do
@@ -73,10 +73,10 @@ home:CreateToggle({
         end
     end,
 })
-home:CreateToggle({
-    Name = "AimBot[Beta](I Dont Make This)", Flag = "Toggle3", CurrentValue = false,
-    Callback = function(v)
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/MerebennieOfficial/ExoticJn/refs/heads/main/AIMLOCK"))()
+home:CreateButton({
+    Name = "AimBot(No Aim For Teams)",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/ihlheg/Aim/refs/heads/main/Aim"))()
     end
 })
 local misc = win:CreateTab("🌐 Misc")
