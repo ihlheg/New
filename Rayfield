@@ -50,7 +50,7 @@ local win = Rayfield:CreateWindow({
 local home = win:CreateTab("🏡 Home")
 home:CreateToggle({
     Name = "INF Stamina", Flag = "Toggle1", CurrentValue = false,
-    Callback = function()
+    Callback = function(v)
         Running = v
         local m = require(game.ReplicatedStorage.Systems.Character.Game.Sprinting)
         m.StaminaLossDisabled = v
@@ -64,7 +64,7 @@ home:CreateToggle({
 })
 home:CreateToggle({
     Name = "ESP", Flag = "Toggle2", CurrentValue = false,
-    Callback = function()
+    Callback = function(v)
         ESPEnabled = v
         if v then task.spawn(updateESP) else
             for _, o in pairs(workspace:GetDescendants()) do
